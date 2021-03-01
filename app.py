@@ -10,6 +10,7 @@ import pandas as pd
 categories_from_excel = pd.read_excel('database_download.xlsx', sheet_name = 'categories')
 meals_from_excel = pd.read_excel('database_download.xlsx', sheet_name = 'meals')
 
+print(len(meals_from_excel["title"]))
 
 print((categories_from_excel["title"]))
 #print(meals_from_excel["title"])
@@ -30,14 +31,6 @@ migrate = Migrate(app, db)
 
 
 
-class User(db.Model):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    mail = db.Column(db.String)
-    password = db.Column(db.String)
-    orders = db.relationship("Order", back_populates='user')
-
-
 ####!!!!!!!!!!!!!!!!!!!!!!#########
 association_table = db.Table('association',
                              db.Column('meal_id', db.Integer, db.ForeignKey('meals.id')),
@@ -53,10 +46,8 @@ class Order(db.Model):
     mail = db.Column(db.String)
     phone = db.Column(db.String)
     adresses = db.Column(db.String)
-    user = db.relationship("User")
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     meals = db.relationship(
-        "Meals", secondary=association_table, back_populates="meals"
+        "Meals", secondary=association_table, back_populates="orders"
     )
 
     ####    –– список блюд в заказе(можно через запятую, можно many2many)
@@ -68,33 +59,27 @@ class Meals(db.Model):
     price = db.Column(db.Float)
     description = db.Column(db.String, unique=True)
     picture = db.Column(db.String, unique=True)
-    category = db.relationship("Category")
-    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    category = db.Column(db.Float)
     orders = db.relationship(
-        "Order", secondary=association_table, back_populates="orders"
+        "Order", secondary=association_table, back_populates="meals"
     )
 
 
-
-class Category(db.Model):
-    __tablename__ = 'categories'
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String, unique=True)
-    meals = db.relationship("Meals", back_populates='category')
-
+for i in range(len(meals_from_excel["title"])):
+    print((meals_from_excel["title"])[i],(meals_from_excel["description"])[i])
 
 
 
 #number = int(input())
-for i in range(len(meals_from_excel["title"])):
-    dish = Meals(title=(meals_from_excel["title"])[i],
-                     description=(meals_from_excel["description"])[i],
-                      picture=(meals_from_excel["picture"])[i],
-                      price=(meals_from_excel["price"])[i])
- #                   category=(meals_from_excel["category"])[i],
-  #                  )
-    db.session.add(dish)
-    db.session.commit()
+#for i in range(len(meals_from_excel["title"])):
+#    dish = Meals(title=(meals_from_excel["title"])[i],
+#                     description=(meals_from_excel["description"])[i],
+ #                     picture=(meals_from_excel["picture"])[i],
+ #                     price=(meals_from_excel["price"])[i],
+ #                      category=(meals_from_excel["category_id"])[i])
+
+#db.session.add(dish)
+#db.session.commit()
 
 
 
@@ -108,10 +93,12 @@ for i in range(len(meals_from_excel["title"])):
 #db.session.add(teacher)
 #db.session.commit()
 
-#dishes = Meals.query.all()
+dishes = Meals.query.all()
 
-#for dish in dishes:
- #   print(dishes.title+" " +dishes.description)
+for dish in dishes:
+    print(dish.title+"  "+str(dish.id))
+
+
 
 
 
